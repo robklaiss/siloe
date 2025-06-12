@@ -1,0 +1,206 @@
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Dispatching: GET test
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Available routes: Array
+(
+    [0] => GET /test => HomeController@index
+    [1] => GET / => HomeController@index
+    [2] => GET /login => AuthController@showLoginForm
+    [3] => POST /login => AuthController@login
+    [4] => GET /register => AuthController@showRegistrationForm
+    [5] => POST /register => AuthController@register
+    [6] => POST /logout => AuthController@logout
+    [7] => GET /dashboard => DashboardController@index
+    [8] => GET /profile => ProfileController@edit
+    [9] => PUT /profile => ProfileController@update
+    [10] => PUT /profile/password => ProfileController@updatePassword
+    [11] => GET /admin/users => Admin\UserController@index
+    [12] => GET /admin/users/create => Admin\UserController@create
+    [13] => POST /admin/users => Admin\UserController@store
+    [14] => GET /admin/users/{id}/edit => Admin\UserController@edit
+    [15] => PUT /admin/users/{id} => Admin\UserController@update
+    [16] => DELETE /admin/users/{id} => Admin\UserController@destroy
+    [17] => GET /menus => MenuController@index
+    [18] => GET /menus/create => MenuController@create
+    [19] => POST /menus => MenuController@store
+    [20] => GET /menus/{id}/edit => MenuController@edit
+    [21] => PUT /menus/{id} => MenuController@update
+    [22] => DELETE /menus/{id} => MenuController@destroy
+    [23] => GET /orders => OrderController@index
+    [24] => GET /orders/create => OrderController@create
+    [25] => POST /orders => OrderController@store
+    [26] => GET /orders/{id} => OrderController@show
+    [27] => GET /orders/{id}/edit => OrderController@edit
+    [28] => PUT /orders/{id} => OrderController@update
+    [29] => DELETE /orders/{id} => OrderController@destroy
+    [30] => ANY {any} => ErrorController@notFound
+)
+
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /test (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET / (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /login (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: POST /login (matches: false, method: GET, expected: POST)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /register (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: POST /register (matches: false, method: GET, expected: POST)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: POST /logout (matches: false, method: GET, expected: POST)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /dashboard (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /profile (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: PUT /profile (matches: false, method: GET, expected: PUT)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: PUT /profile/password (matches: false, method: GET, expected: PUT)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /admin/users (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /admin/users/create (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: POST /admin/users (matches: false, method: GET, expected: POST)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /admin/users/{id}/edit (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: PUT /admin/users/{id} (matches: false, method: GET, expected: PUT)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: DELETE /admin/users/{id} (matches: false, method: GET, expected: DELETE)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /menus (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /menus/create (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: POST /menus (matches: false, method: GET, expected: POST)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /menus/{id}/edit (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: PUT /menus/{id} (matches: false, method: GET, expected: PUT)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: DELETE /menus/{id} (matches: false, method: GET, expected: DELETE)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /orders (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /orders/create (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: POST /orders (matches: false, method: GET, expected: POST)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /orders/{id} (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /orders/{id}/edit (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: PUT /orders/{id} (matches: false, method: GET, expected: PUT)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: DELETE /orders/{id} (matches: false, method: GET, expected: DELETE)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: ANY {any} (matches: true, method: GET, expected: ANY)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] 404 - Route not found: GET test
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Available routes: Array
+(
+    [0] => GET /test
+    [1] => GET /
+    [2] => GET /login
+    [3] => POST /login
+    [4] => GET /register
+    [5] => POST /register
+    [6] => POST /logout
+    [7] => GET /dashboard
+    [8] => GET /profile
+    [9] => PUT /profile
+    [10] => PUT /profile/password
+    [11] => GET /admin/users
+    [12] => GET /admin/users/create
+    [13] => POST /admin/users
+    [14] => GET /admin/users/{id}/edit
+    [15] => PUT /admin/users/{id}
+    [16] => DELETE /admin/users/{id}
+    [17] => GET /menus
+    [18] => GET /menus/create
+    [19] => POST /menus
+    [20] => GET /menus/{id}/edit
+    [21] => PUT /menus/{id}
+    [22] => DELETE /menus/{id}
+    [23] => GET /orders
+    [24] => GET /orders/create
+    [25] => POST /orders
+    [26] => GET /orders/{id}
+    [27] => GET /orders/{id}/edit
+    [28] => PUT /orders/{id}
+    [29] => DELETE /orders/{id}
+    [30] => ANY {any}
+)
+
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Dispatching: GET test
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Available routes: Array
+(
+    [0] => GET /test => HomeController@index
+    [1] => GET / => HomeController@index
+    [2] => GET /login => AuthController@showLoginForm
+    [3] => POST /login => AuthController@login
+    [4] => GET /register => AuthController@showRegistrationForm
+    [5] => POST /register => AuthController@register
+    [6] => POST /logout => AuthController@logout
+    [7] => GET /dashboard => DashboardController@index
+    [8] => GET /profile => ProfileController@edit
+    [9] => PUT /profile => ProfileController@update
+    [10] => PUT /profile/password => ProfileController@updatePassword
+    [11] => GET /admin/users => Admin\UserController@index
+    [12] => GET /admin/users/create => Admin\UserController@create
+    [13] => POST /admin/users => Admin\UserController@store
+    [14] => GET /admin/users/{id}/edit => Admin\UserController@edit
+    [15] => PUT /admin/users/{id} => Admin\UserController@update
+    [16] => DELETE /admin/users/{id} => Admin\UserController@destroy
+    [17] => GET /menus => MenuController@index
+    [18] => GET /menus/create => MenuController@create
+    [19] => POST /menus => MenuController@store
+    [20] => GET /menus/{id}/edit => MenuController@edit
+    [21] => PUT /menus/{id} => MenuController@update
+    [22] => DELETE /menus/{id} => MenuController@destroy
+    [23] => GET /orders => OrderController@index
+    [24] => GET /orders/create => OrderController@create
+    [25] => POST /orders => OrderController@store
+    [26] => GET /orders/{id} => OrderController@show
+    [27] => GET /orders/{id}/edit => OrderController@edit
+    [28] => PUT /orders/{id} => OrderController@update
+    [29] => DELETE /orders/{id} => OrderController@destroy
+    [30] => ANY {any} => ErrorController@notFound
+)
+
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /test (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET / (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /login (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: POST /login (matches: false, method: GET, expected: POST)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /register (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: POST /register (matches: false, method: GET, expected: POST)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: POST /logout (matches: false, method: GET, expected: POST)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /dashboard (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /profile (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: PUT /profile (matches: false, method: GET, expected: PUT)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: PUT /profile/password (matches: false, method: GET, expected: PUT)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /admin/users (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /admin/users/create (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: POST /admin/users (matches: false, method: GET, expected: POST)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /admin/users/{id}/edit (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: PUT /admin/users/{id} (matches: false, method: GET, expected: PUT)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: DELETE /admin/users/{id} (matches: false, method: GET, expected: DELETE)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /menus (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /menus/create (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: POST /menus (matches: false, method: GET, expected: POST)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /menus/{id}/edit (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: PUT /menus/{id} (matches: false, method: GET, expected: PUT)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: DELETE /menus/{id} (matches: false, method: GET, expected: DELETE)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /orders (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /orders/create (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: POST /orders (matches: false, method: GET, expected: POST)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /orders/{id} (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: GET /orders/{id}/edit (matches: false, method: GET, expected: GET)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: PUT /orders/{id} (matches: false, method: GET, expected: PUT)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: DELETE /orders/{id} (matches: false, method: GET, expected: DELETE)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Checking route: ANY {any} (matches: true, method: GET, expected: ANY)
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] 404 - Route not found: GET test
+[11-Jun-2025 19:13:11 America/Argentina/Buenos_Aires] Available routes: Array
+(
+    [0] => GET /test
+    [1] => GET /
+    [2] => GET /login
+    [3] => POST /login
+    [4] => GET /register
+    [5] => POST /register
+    [6] => POST /logout
+    [7] => GET /dashboard
+    [8] => GET /profile
+    [9] => PUT /profile
+    [10] => PUT /profile/password
+    [11] => GET /admin/users
+    [12] => GET /admin/users/create
+    [13] => POST /admin/users
+    [14] => GET /admin/users/{id}/edit
+    [15] => PUT /admin/users/{id}
+    [16] => DELETE /admin/users/{id}
+    [17] => GET /menus
+    [18] => GET /menus/create
+    [19] => POST /menus
+    [20] => GET /menus/{id}/edit
+    [21] => PUT /menus/{id}
+    [22] => DELETE /menus/{id}
+    [23] => GET /orders
+    [24] => GET /orders/create
+    [25] => POST /orders
+    [26] => GET /orders/{id}
+    [27] => GET /orders/{id}/edit
+    [28] => PUT /orders/{id}
+    [29] => DELETE /orders/{id}
+    [30] => ANY {any}
+)
+

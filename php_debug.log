@@ -1,0 +1,4 @@
+[Wed Jun 11 20:24:48 2025] PHP 8.4.7 Development Server (http://localhost:8000) started
+[Wed Jun 11 20:25:04 2025] [::1]:58641 Accepted
+[Wed Jun 11 20:25:05 2025] [::1]:58641 [404]: POST /login
+[Wed Jun 11 20:25:05 2025] [::1]:58641 Closing
