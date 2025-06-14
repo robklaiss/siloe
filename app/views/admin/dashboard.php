@@ -21,6 +21,9 @@
                         <a href="/admin/dashboard" class="block py-2 px-4 rounded bg-gray-700 text-white">Dashboard</a>
                     </li>
                     <li>
+                        <a href="/admin/companies" class="block py-2 px-4 rounded hover:bg-gray-700 text-gray-300 hover:text-white">Companies</a>
+                    </li>
+                    <li>
                         <a href="/admin/users" class="block py-2 px-4 rounded hover:bg-gray-700 text-gray-300 hover:text-white">Users</a>
                     </li>
                     <li>
@@ -93,24 +96,116 @@
                 </div>
             </div>
             
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Latest Menus -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Latest Menus</h3>
+                            <a href="/menus" class="text-sm text-blue-600 hover:text-blue-800">View All</a>
+                        </div>
+                        <?php if (empty($stats['latest_menus'])): ?>
+                            <p class="text-gray-500 text-sm">No menus found.</p>
+                        <?php else: ?>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <?php foreach ($stats['latest_menus'] as $menu): ?>
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    <?= htmlspecialchars($menu['name']) ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                                    ₲<?= number_format($menu['price'], 0, ',', '.') ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap">
+                                                    <?php if ($menu['available']): ?>
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                            Available
+                                                        </span>
+                                                    <?php else: ?>
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                            Unavailable
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Latest Orders -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Recent Orders</h3>
+                            <a href="/orders" class="text-sm text-blue-600 hover:text-blue-800">View All</a>
+                        </div>
+                        <?php if (empty($stats['latest_orders'])): ?>
+                            <p class="text-gray-500 text-sm">No orders found.</p>
+                        <?php else: ?>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order #</th>
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <?php foreach ($stats['latest_orders'] as $order): ?>
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    #<?= htmlspecialchars($order['id']) ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                                    <?= htmlspecialchars($order['user_name'] ?? 'Guest') ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                                    ₲<?= number_format($order['total_amount'] ?? 0, 0, ',', '.') ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap">
+                                                    <?php if ($order['status'] === 'completed'): ?>
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                            Completed
+                                                        </span>
+                                                    <?php elseif ($order['status'] === 'pending'): ?>
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                            Pending
+                                                        </span>
+                                                    <?php else: ?>
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                            <?= htmlspecialchars(ucfirst($order['status'])) ?>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
             <!-- Recent Activity -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
                 <div class="border-t border-gray-200">
-                    <div class="py-3 flex items-center border-b border-gray-200">
-                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 mr-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="font-medium">System initialized</p>
-                            <p class="text-sm text-gray-500">Admin user created</p>
-                        </div>
-                        <div class="ml-auto text-sm text-gray-500">
-                            <?= date('Y-m-d H:i:s') ?>
-                        </div>
-                    </div>
                     <div class="py-3 flex items-center">
                         <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-500 mr-4">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

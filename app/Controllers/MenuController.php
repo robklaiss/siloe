@@ -2,11 +2,28 @@
 
 namespace App\Controllers;
 
+use App\Models\Menu;
+use App\Models\EmployeeMenuSelection;
+use App\Models\User;
 use App\Core\Controller;
+use App\Core\Request;
+use App\Core\Response;
+use App\Core\Session;
+use App\Core\Router;
+use DateTime;
 
 class MenuController extends Controller {
-    public function __construct() {
-        // Check if user is logged in
+    private $menuModel;
+    private $selectionModel;
+    private $userModel;
+    protected $router;
+    protected $request;
+
+    public function __construct(Router $router, Request $request = null) {
+        parent::__construct($router, $request);
+        $this->menuModel = new Menu();
+        $this->selectionModel = new EmployeeMenuSelection();
+        $this->userModel = new User();
         if (!isset($_SESSION['user_id'])) {
             header('Location: /login');
             exit;
@@ -69,36 +86,11 @@ class MenuController extends Controller {
         // Get database connection
         $db = $this->getDbConnection();
         
-        // Debug approach - check if the menu item already exists first
-        // Check if a menu with this name and description already exists
-        $checkStmt = $db->prepare('SELECT COUNT(*) as count FROM menus WHERE name = :name AND description = :description');
-        $checkStmt->execute([
-            ':name' => $name,
-            ':description' => $description
-        ]);
-        $checkResult = $checkStmt->fetch();
-        
-        // Debug output
-        error_log("Menu check - Name: {$name}, Description: {$description}");
-        error_log("Menu check - Count: {$checkResult['count']}");
-        
-        // If a menu with this name and description already exists, show an error
-        if ($checkResult && $checkResult['count'] > 0) {
-            $_SESSION['error'] = 'A menu item with this name and description already exists';
-            $_SESSION['old'] = [
-                'name' => $name, 
-                'description' => $description, 
-                'price' => $price,
-                'date' => $date,
-                'available' => $available
-            ];
-            header('Location: /menus/create');
-            exit;
-        }
-        
-        // If we get here, the menu item doesn't exist, so create it
         try {
-            // Create new menu
+            // Begin transaction for better data integrity
+            $db->beginTransaction();
+            
+            // Create new menu - the unique index will prevent duplicates
             $stmt = $db->prepare('INSERT INTO menus (name, description, price, date, available, is_active) VALUES (:name, :description, :price, :date, :available, :is_active)');
             $result = $stmt->execute([
                 ':name' => $name,
@@ -109,18 +101,28 @@ class MenuController extends Controller {
                 ':is_active' => $available // Using available as is_active
             ]);
             
-            // Debug output
-            error_log("Menu insert - Result: " . ($result ? 'success' : 'failure'));
+            // Commit the transaction
+            $db->commit();
             
             // Set success message
             $_SESSION['success'] = 'Menu created successfully';
             header('Location: /menus');
             exit;
         } catch (\PDOException $e) {
-            // Debug output
-            error_log("Menu insert - Error: {$e->getMessage()}");
+            // Rollback the transaction
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
             
-            $_SESSION['error'] = 'Failed to create menu: ' . $e->getMessage();
+            // Check if this is a constraint violation (duplicate entry)
+            if ($e->getCode() == '23000' || strpos($e->getMessage(), 'UNIQUE constraint failed') !== false) {
+                $_SESSION['error'] = 'A menu item with this name and description already exists';
+            } else {
+                // Log the detailed error for debugging
+                error_log("Menu insert - Error: {$e->getMessage()}");
+                $_SESSION['error'] = 'Failed to create menu. Please try again.';
+            }
+            
             $_SESSION['old'] = [
                 'name' => $name, 
                 'description' => $description, 
@@ -131,9 +133,6 @@ class MenuController extends Controller {
             header('Location: /menus/create');
             exit;
         }
-
-        // Success/failure handling is now done inside the transaction block
-        exit;
     }
     
     public function edit($id) {

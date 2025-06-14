@@ -3,6 +3,8 @@
 namespace App\Controllers\Admin;
 
 use App\Core\Controller;
+use App\Core\Request;
+use App\Core\Response;
 
 class UserController extends Controller {
     public function __construct() {
@@ -25,6 +27,11 @@ class UserController extends Controller {
     }
     
     public function create() {
+        // Prevent browser caching of the form page
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Cache-Control: post-check=0, pre-check=0', false);
+        header('Pragma: no-cache');
+
         // Render the user creation form
         $this->view('admin/users/create', [
             'title' => 'Create User - ' . APP_NAME,
@@ -35,16 +42,18 @@ class UserController extends Controller {
     public function store() {
         // Verify CSRF token
         if (!$this->verifyCsrfToken($_POST['_token'] ?? '')) {
-            $_SESSION['error'] = 'Invalid CSRF token';
+            $_SESSION['error'] = 'Invalid CSRF token. Please try again.';
             header('Location: /admin/users/create');
             exit;
         }
+        // Invalidate the used token by generating a new one for the session.
+        $this->generateCsrfToken();
 
         // Get form data
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
-        $role = $_POST['role'] ?? 'user';
+        $role = $_POST['role'] ?? 'employee';
 
         // Basic validation
         $errors = [];
@@ -92,7 +101,12 @@ class UserController extends Controller {
         exit;
     }
     
-    public function edit($id) {
+    public function edit(Request $request, Response $response, $id) {
+        // Prevent browser caching of the form page
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Cache-Control: post-check=0, pre-check=0', false);
+        header('Pragma: no-cache');
+
         // Get user by ID
         $user = $this->getUserById($id);
         
@@ -110,13 +124,15 @@ class UserController extends Controller {
         ]);
     }
     
-    public function update($id) {
+    public function update(Request $request, Response $response, $id) {
         // Verify CSRF token
         if (!$this->verifyCsrfToken($_POST['_token'] ?? '')) {
-            $_SESSION['error'] = 'Invalid CSRF token';
+            $_SESSION['error'] = 'Invalid CSRF token. Please try again.';
             header('Location: /admin/users/' . $id . '/edit');
             exit;
         }
+        // Invalidate the used token by generating a new one for the session.
+        $this->generateCsrfToken();
 
         // Get user by ID
         $user = $this->getUserById($id);
@@ -130,7 +146,7 @@ class UserController extends Controller {
         // Get form data
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
-        $role = $_POST['role'] ?? 'user';
+        $role = $_POST['role'] ?? 'employee';
         $password = $_POST['password'] ?? '';
 
         // Basic validation
@@ -190,13 +206,15 @@ class UserController extends Controller {
         exit;
     }
     
-    public function destroy($id) {
+    public function destroy(Request $request, Response $response, $id) {
         // Verify CSRF token
         if (!$this->verifyCsrfToken($_POST['_token'] ?? '')) {
-            $_SESSION['error'] = 'Invalid CSRF token';
+            $_SESSION['error'] = 'Invalid CSRF token. Please try again.';
             header('Location: /admin/users');
             exit;
         }
+        // Invalidate the used token by generating a new one for the session.
+        $this->generateCsrfToken();
 
         // Get user by ID
         $user = $this->getUserById($id);
@@ -253,9 +271,8 @@ class UserController extends Controller {
     }
     
     protected function generateCsrfToken(): string {
-        if (empty($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
+        // Always generate a new token to prevent reuse
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         return $_SESSION['csrf_token'];
     }
 

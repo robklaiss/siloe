@@ -79,10 +79,17 @@
                         <label for="menu_id" class="block text-gray-700 text-sm font-bold mb-2">Menu Item</label>
                         <select name="menu_id" id="menu_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
                             <option value="">Select Menu Item</option>
-                            <?php foreach ($menus as $menu): ?>
+                            <?php foreach ($menus as $menu): 
+                                $isSelected = false;
+                                if (isset($_SESSION['old']['menu_id'])) {
+                                    $isSelected = $_SESSION['old']['menu_id'] == $menu['id'];
+                                } elseif (isset($order['menu_id'])) {
+                                    $isSelected = $order['menu_id'] == $menu['id'];
+                                }
+                            ?>
                                 <option value="<?= htmlspecialchars($menu['id']) ?>" 
                                         data-price="<?= htmlspecialchars($menu['price']) ?>"
-                                        <?= (isset($_SESSION['old']['menu_id']) ? $_SESSION['old']['menu_id'] == $menu['id'] : $order['menu_id'] == $menu['id']) ? 'selected' : '' ?>>
+                                        <?= $isSelected ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($menu['name']) ?> ($<?= htmlspecialchars(number_format($menu['price'], 2)) ?>)
                                 </option>
                             <?php endforeach; ?>
@@ -92,14 +99,14 @@
                     <div class="mb-4">
                         <label for="quantity" class="block text-gray-700 text-sm font-bold mb-2">Quantity</label>
                         <input type="number" name="quantity" id="quantity" min="1" 
-                               value="<?= isset($_SESSION['old']['quantity']) ? htmlspecialchars($_SESSION['old']['quantity']) : htmlspecialchars($order['quantity']) ?>" 
+                               value="<?= isset($_SESSION['old']['quantity']) ? htmlspecialchars($_SESSION['old']['quantity']) : (isset($order['quantity']) ? htmlspecialchars($order['quantity']) : '') ?>" 
                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
                     </div>
                     
                     <div class="mb-4">
                         <label for="total" class="block text-gray-700 text-sm font-bold mb-2">Total ($)</label>
                         <input type="text" name="total" id="total" readonly 
-                               value="<?= isset($_SESSION['old']['total']) ? htmlspecialchars($_SESSION['old']['total']) : htmlspecialchars(number_format($order['total'], 2)) ?>" 
+                               value="<?= isset($_SESSION['old']['total']) ? htmlspecialchars($_SESSION['old']['total']) : (isset($order['total']) ? htmlspecialchars(number_format($order['total'], 2)) : '0.00') ?>" 
                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-500 leading-tight focus:outline-none focus:shadow-outline bg-gray-100">
                     </div>
                     

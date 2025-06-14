@@ -66,17 +66,15 @@ spl_autoload_register(function ($class) {
 
 // Start session with secure settings
 $sessionParams = [
-    'cookie_httponly' => 1,
-    'cookie_secure' => isset($_SERVER['HTTPS']),
-    'cookie_samesite' => 'Lax',
-    'use_strict_mode' => 1,
-    'use_only_cookies' => 1,
-    'cookie_lifetime' => 0, // Until browser closes
+    'cookie_lifetime' => 0, // 0 = Until browser is closed
     'cookie_path' => '/',
     'cookie_domain' => '',
-    'cookie_secure' => false, // Set to true in production with HTTPS
-    'cookie_httponly' => true,
-    'gc_maxlifetime' => 86400, // 24 minutes
+    'cookie_secure' => false, // TODO: Set to true in production with HTTPS
+    'cookie_httponly' => true, // Prevent client-side script access
+    'cookie_samesite' => 'Lax', // Mitigates CSRF
+    'use_strict_mode' => 1, // Prevent session fixation attacks
+    'use_only_cookies' => 1,
+    'gc_maxlifetime' => 1440, // 24 minutes
     'gc_probability' => 1,
     'gc_divisor' => 100
 ];

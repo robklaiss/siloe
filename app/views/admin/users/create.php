@@ -88,7 +88,8 @@
                     <div class="mb-6">
                         <label for="role" class="block text-gray-700 text-sm font-bold mb-2">Role</label>
                         <select name="role" id="role" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="user" <?= (isset($_SESSION['old']['role']) && $_SESSION['old']['role'] === 'user') ? 'selected' : '' ?>>User</option>
+                            <option value="employee" <?= (isset($_SESSION['old']['role']) && $_SESSION['old']['role'] === 'employee') ? 'selected' : '' ?>>Employee</option>
+                            <option value="company_admin" <?= (isset($_SESSION['old']['role']) && $_SESSION['old']['role'] === 'company_admin') ? 'selected' : '' ?>>Company Admin</option>
                             <option value="admin" <?= (isset($_SESSION['old']['role']) && $_SESSION['old']['role'] === 'admin') ? 'selected' : '' ?>>Admin</option>
                         </select>
                     </div>

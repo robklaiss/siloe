@@ -58,7 +58,7 @@
             
             <!-- Create Order Form -->
             <div class="bg-white rounded-lg shadow p-6">
-                <form action="/orders" method="POST">
+                <form action="/orders" method="POST" id="orderForm">
                     <input type="hidden" name="_token" value="<?= htmlspecialchars($csrf_token) ?>">
                     
                     <div class="mb-4">
@@ -110,7 +110,7 @@
                     </div>
                     
                     <div class="flex items-center justify-end">
-                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        <button type="submit" id="submitBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                             Create Order
                         </button>
                     </div>
@@ -122,11 +122,54 @@
     </div>
     
     <script>
-        // Calculate total when quantity or menu item changes
+        // Wait for DOM to be fully loaded
         document.addEventListener('DOMContentLoaded', function() {
             const menuSelect = document.getElementById('menu_id');
             const quantityInput = document.getElementById('quantity');
             const totalInput = document.getElementById('total');
+            const orderForm = document.getElementById('orderForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Store original button text
+            const originalBtnText = submitBtn.textContent;
+            
+            // Completely prevent duplicate submissions
+            orderForm.addEventListener('submit', function(e) {
+                // Immediately prevent default to take control
+                e.preventDefault();
+                
+                // Disable the button immediately
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                submitBtn.textContent = 'Processing...';
+                
+                // Use a small timeout to ensure UI updates before submission
+                setTimeout(function() {
+                    // Create a hidden field with a unique submission ID
+                    const uniqueId = new Date().getTime() + Math.random().toString(36).substring(2, 15);
+                    const hiddenField = document.createElement('input');
+                    hiddenField.type = 'hidden';
+                    hiddenField.name = 'submission_id';
+                    hiddenField.value = uniqueId;
+                    orderForm.appendChild(hiddenField);
+                    
+                    // Store submission ID in localStorage to prevent duplicates
+                    localStorage.setItem('last_order_submission', uniqueId);
+                    
+                    // Submit the form programmatically
+                    orderForm.submit();
+                }, 100);
+            });
+            
+            // Reset form state if user navigates back
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    // Page was loaded from cache (user clicked back)
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    submitBtn.textContent = originalBtnText;
+                }
+            });
             
             function calculateTotal() {
                 const selectedOption = menuSelect.options[menuSelect.selectedIndex];

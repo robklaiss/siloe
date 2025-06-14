@@ -4,6 +4,44 @@ namespace App\Core;
 
 class Controller {
     /**
+     * @var Router
+     */
+    protected $router;
+    
+    /**
+     * @var Request
+     */
+    protected $request;
+    
+    /**
+     * @var Response
+     */
+    protected $response;
+    
+    /**
+     * @var Session
+     */
+    protected $session;
+    
+    /**
+     * Controller constructor.
+     * @param Router $router
+     * @param Request|null $request
+     * @param Response|null $response
+     * @param Session|null $session
+     */
+    public function __construct(
+        Router $router,
+        ?Request $request = null,
+        ?Response $response = null,
+        ?Session $session = null
+    ) {
+        $this->router = $router;
+        $this->request = $request ?? new Request();
+        $this->response = $response ?? new Response();
+        $this->session = $session ?? Session::getInstance();
+    }
+    /**
      * Render a view file
      *
      * @param string $view The view file to render (without .php extension)
