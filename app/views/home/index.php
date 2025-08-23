@@ -25,13 +25,21 @@ $logo = !empty($logo_url)
         html, body { height: 100%; }
         body {
             margin: 0;
-            min-height: 100dvh;
+            min-height: 100vh; /* fallback */
+            min-height: 100dvh; /* modern viewport */
             background: linear-gradient(135deg, #f8f9fa 0%, #eaf4ff 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--dark);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .center-stage {
+            min-height: 100vh; /* fallback */
+            min-height: 100dvh; /* modern viewport */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .hero-card {
             width: 100%;
@@ -57,7 +65,7 @@ $logo = !empty($logo_url)
     </style>
 </head>
 <body>
-    <main class="container px-3 px-sm-4">
+    <main class="container center-stage px-3 px-sm-4">
         <section class="hero-card">
             <div class="hero-header">
                 <img src="<?= htmlspecialchars($logo) ?>" alt="<?= htmlspecialchars(APP_NAME) ?>" class="brand-logo mb-3">
