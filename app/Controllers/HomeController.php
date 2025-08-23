@@ -2,9 +2,17 @@
 
 namespace App\Controllers;
 
-class HomeController {
+use App\Core\Controller;
+
+class HomeController extends Controller {
     public function index() {
-        echo '<h1>Welcome to Siloe Lunch System</h1>';
-        echo '<p><a href="/login">Login</a> | <a href="/register">Register</a></p>';
+        // Use the uploaded Siloe logo by default; can be easily swapped
+        $defaultLogo = '684ddb17c8715-siloe-logo.jpg';
+        $logoUrl = function_exists('logo_url') ? logo_url($defaultLogo) : ('/uploads/logos/' . $defaultLogo);
+
+        $this->view('home/index', [
+            'title' => APP_NAME,
+            'logo_url' => $logoUrl,
+        ]);
     }
 }
