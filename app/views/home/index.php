@@ -22,8 +22,10 @@ $logo = !empty($logo_url)
             --primary: #0d6efd;
             --dark: #212529;
         }
+        html, body { height: 100%; }
         body {
-            min-height: 100vh;
+            margin: 0;
+            min-height: 100dvh;
             background: linear-gradient(135deg, #f8f9fa 0%, #eaf4ff 100%);
             display: flex;
             align-items: center;
