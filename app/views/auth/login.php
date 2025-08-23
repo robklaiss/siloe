@@ -3,139 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title) ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title><?= htmlspecialchars(APP_NAME) ?> - Login</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <base href="<?= APP_URL ?>/">
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --secondary: #6c757d;
+            --success: #198754;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #212529;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 5rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .login-header h1 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .form-control:focus {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .btn {
+            display: inline-block;
+            font-weight: 400;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            user-select: none;
+            border: 1px solid transparent;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: 0.25rem;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .btn-primary {
+            color: #fff;
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .alert {
+            position: relative;
+            padding: 1rem 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+        }
+        
+        .alert-danger {
+            color: #842029;
+            background-color: #f8d7da;
+            border-color: #f5c2c7;
+        }
+        
+        .alert-success {
+            color: #0f5132;
+            background-color: #d1e7dd;
+            border-color: #badbcc;
+        }
+        
+        .text-center {
+            text-align: center !important;
+        }
+        
+        .mt-3 {
+            margin-top: 1rem !important;
+        }
+        
+        .text-muted {
+            color: #6c757d !important;
+            text-decoration: none;
+        }
+        
+        .text-muted:hover {
+            text-decoration: underline;
+        }
+        
+        .form-check {
+            display: block;
+            min-height: 1.5rem;
+            padding-left: 1.5em;
+            margin-bottom: 1rem;
+        }
+        
+        .form-check-input {
+            float: left;
+            margin-left: -1.5em;
+            margin-top: 0.3em;
+        }
+        
+        .form-check-label {
+            cursor: pointer;
+        }
+        :root {
+            --bs-body-bg: #f8f9fa;
+            --bs-primary: #0d6efd;
+            --bs-secondary: #6c757d;
+            --bs-success: #198754;
+            --bs-danger: #dc3545;
+            --bs-light: #f8f9fa;
+            --bs-dark: #212529;
+        }
+        
+        body {
+            background-color: var(--bs-body-bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--bs-dark);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .form-control:focus {
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .btn-primary {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+        
+        .alert {
+            border-radius: 0.375rem;
+        }
+        
+        .bi {
+            margin-right: 0.5rem;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <div class="min-h-screen flex items-center justify-center">
-        <!-- Debug Info -->
-        <div id="debug-info" class="fixed top-4 right-4 bg-yellow-100 p-4 rounded shadow-md text-sm hidden">
-            <h3 class="font-bold mb-2">Debug Info</h3>
-            <div id="debug-content"></div>
-        </div>
-        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-            <div class="text-center mb-8">
-                <h1 class="text-2xl font-bold text-gray-800">Welcome to <?= htmlspecialchars(APP_NAME) ?></h1>
-                <p class="text-gray-600">Please sign in to your account</p>
+<body class="bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <img src="<?= asset('uploads/logos/684ddb17c8715-siloe-logo.jpg') ?>" alt="Siloe" class="mb-3" style="max-height:60px; width:auto;">
+                            <h2 class="h4 mb-2"><?= htmlspecialchars(APP_NAME) ?></h2>
+                            <p class="text-muted">Please sign in to continue</p>
+                        </div>
+
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <?= htmlspecialchars($_SESSION['error']) ?>
+                <?php unset($_SESSION['error']); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle-fill"></i>
+                <?= htmlspecialchars($_SESSION['success']) ?>
+                <?php unset($_SESSION['success']); ?>
+            </div>
+        <?php endif; ?>
+
+        <form id="loginForm" action="/login" method="POST">
+            <input type="hidden" name="_token" value="<?= htmlspecialchars($csrf_token) ?>">
+            
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="email" id="email" name="email" class="form-control" required 
+                       value="<?= htmlspecialchars($_SESSION['old']['email'] ?? ''); ?>"
+                       autocomplete="username">
+                <?php unset($_SESSION['old']['email']); ?>
             </div>
 
-            <?php if (isset($_SESSION['error'])): ?>
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    <?= htmlspecialchars($_SESSION['error']) ?>
-                    <?php unset($_SESSION['error']); ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (isset($_SESSION['success'])): ?>
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                    <?= htmlspecialchars($_SESSION['success']) ?>
-                    <?php unset($_SESSION['success']); ?>
-                </div>
-            <?php endif; ?>
-
-            <form id="loginForm" action="/login" method="POST" class="space-y-6">
-                <input type="hidden" name="_token" value="<?= htmlspecialchars($csrf_token) ?>">
-                
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
-                    <input type="email" id="email" name="email" required 
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                           value="<?= htmlspecialchars($_SESSION['old']['email'] ?? '') ?>">
-                    <?php unset($_SESSION['old']['email']); ?>
-                </div>
-
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="password" name="password" required
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input id="remember_me" name="remember_me" type="checkbox" 
-                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <label for="remember_me" class="ml-2 block text-sm text-gray-700">
-                            Remember me
-                        </label>
-                    </div>
-
-                    <div class="text-sm">
-                        <a href="/forgot-password" class="font-medium text-indigo-600 hover:text-indigo-500">
-                            Forgot your password?
-                        </a>
-                    </div>
-                </div>
-
-                <div>
-                    <button type="submit" 
-                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Sign in
-                    </button>
-                </div>
-            </form>
-
-            <div class="mt-6">
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">
-                            Or
-                        </span>
-                    </div>
-                </div>
-
-                <div class="mt-6">
-                    <a href="/register" class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                        Create a new account
-                    </a>
-                </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" required autocomplete="current-password">
             </div>
+
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                <label class="form-check-label" for="remember_me">Remember me</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="bi bi-box-arrow-in-right"></i> Sign In
+            </button>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="/forgot-password" class="text-muted">Forgot your password?</a>
         </div>
     </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" 
+            crossorigin="anonymous">
+    </script>
+    
     <script>
-        // Debug: Log form submission
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('loginForm');
-            const debugInfo = document.getElementById('debug-info');
-            const debugContent = document.getElementById('debug-content');
+        // Log all failed resource loads with more details
+        window.addEventListener('error', function(e) {
+            const target = e.target;
+            const resourceType = target.tagName.toLowerCase();
+            const resourceUrl = target.src || target.href || '';
+            const errorDetails = {
+                type: 'resource_error',
+                resourceType: resourceType,
+                resourceUrl: resourceUrl,
+                timestamp: new Date().toISOString(),
+                pageUrl: window.location.href,
+                userAgent: navigator.userAgent
+            };
+            console.error('Failed to load resource:', errorDetails);
             
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    console.log('Form submission started');
-                    debugInfo.classList.remove('hidden');
+            // Send error to server for logging
+            fetch('/log-error', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(errorDetails)
+            }).catch(err => console.error('Failed to log error:', err));
+            
+        }, true);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            
+            if (loginForm) {
+                // Set autocomplete attributes
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                
+                if (emailInput) emailInput.setAttribute('autocomplete', 'username');
+                if (passwordInput) passwordInput.setAttribute('autocomplete', 'current-password');
+                
+                // Form submission handler
+                loginForm.addEventListener('submit', function(e) {
+                    const email = emailInput?.value.trim();
+                    const password = passwordInput?.value;
                     
-                    // Log form data
-                    const formData = new FormData(form);
-                    const formEntries = Object.fromEntries(formData.entries());
-                    
-                    // Don't log the actual password in production
-                    if (formEntries.password) {
-                        formEntries.password = '********';
+                    if (!email || !password) {
+                        e.preventDefault();
+                        showAlert('Please fill in all required fields', 'danger');
+                        return false;
                     }
                     
-                    const logMessage = 'Form data: ' + JSON.stringify(formEntries, null, 2);
-                    console.log(logMessage);
-                    debugContent.textContent = logMessage;
+                    // Show loading state
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Signing in...';
+                    }
                     
-                    // Continue with form submission
                     return true;
                 });
-            } else {
-                console.error('Login form not found');
-                debugInfo.classList.remove('hidden');
-                debugContent.textContent = 'Error: Login form not found';
             }
             
-            // Log any JavaScript errors
-            window.onerror = function(message, source, lineno, colno, error) {
-                const errorMsg = `JavaScript Error: ${message} (${source}:${lineno}:${colno})`;
-                console.error(errorMsg);
-                debugInfo.classList.remove('hidden');
-                debugContent.textContent = errorMsg;
-                return false; // Let the error propagate
-            };
+            // Show alert function
+            function showAlert(message, type = 'info') {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show mb-3`;
+                alertDiv.role = 'alert';
+                alertDiv.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <span class="me-2">${message}</span>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                
+                const container = document.querySelector('.card-body');
+                if (container) {
+                    // Insert after the header
+                    const header = container.querySelector('.text-center');
+                    if (header && header.nextElementSibling) {
+                        container.insertBefore(alertDiv, header.nextElementSibling);
+                    } else {
+                        container.insertBefore(alertDiv, container.firstChild);
+                    }
+                    
+                    // Auto-hide after 5 seconds
+                    setTimeout(() => {
+                        const bsAlert = bootstrap.Alert.getOrCreateInstance(alertDiv);
+                        bsAlert.close();
+                    }, 5000);
+                }
+            }
+            
+            // Show any existing alerts from PHP
+            <?php if (isset($_SESSION['error'])): ?>
+                showAlert('<?= addslashes($_SESSION['error']) ?>', 'danger');
+                <?php unset($_SESSION['error']); ?>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+                showAlert('<?= addslashes($_SESSION['success']) ?>', 'success');
+                <?php unset($_SESSION['success']); ?>
+            <?php endif; ?>
+            
+            // Debug mode toggle (Ctrl+Alt+D)
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.altKey && e.key === 'd') {
+                    document.body.classList.toggle('debug-mode');
+                    console.log('Debug mode toggled');
+                }
+            });
         });
     </script>
 </body>
