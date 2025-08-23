@@ -1,19 +1,21 @@
 <?php require_once __DIR__ . '/../../partials/header.php'; ?>
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Manage Companies</h1>
-        <a href="/admin/companies/create" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add New Company
-        </a>
-    </div>
+<div class="min-vh-100 d-flex">
+    <?php require_once __DIR__ . '/../../partials/admin_sidebar.php'; ?>
 
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <?= $_SESSION['success']; ?>
-            <?php unset($_SESSION['success']); ?>
+    <div class="flex-grow-1 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Gestionar Empresas</h1>
+            <a href="/admin/companies/create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Agregar Nueva Empresa
+            </a>
         </div>
-    <?php endif; ?>
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success">
+                <?= $_SESSION['success']; ?>
+                <?php unset($_SESSION['success']); ?>
+            </div>
+        <?php endif; ?>
 
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-danger">
@@ -28,29 +30,29 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Logo</th>
+                            <th>Logotipo</th>
                             <th>ID</th>
-                            <th>Name</th>
-                            <th>Contact Email</th>
-                            <th>Contact Phone</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Actions</th>
+                            <th>Nombre</th>
+                            <th>Correo de contacto</th>
+                            <th>Teléfono de contacto</th>
+                            <th>Estado</th>
+                            <th>Creada</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($companies)): ?>
                             <tr>
-                                <td colspan="8" class="text-center">No companies found</td>
+                                <td colspan="8" class="text-center">No se encontraron empresas</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($companies as $company): ?>
                                 <tr>
                                     <td>
                                         <?php if ($company['logo']): ?>
-                                            <img src="<?= htmlspecialchars($company['logo']); ?>" alt="<?= htmlspecialchars($company['name']); ?> Logo" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <img src="<?= htmlspecialchars(logo_url($company['logo'])); ?>" alt="Logotipo de <?= htmlspecialchars($company['name']); ?>" style="width: 50px; height: 50px; object-fit: cover;">
                                         <?php else: ?>
-                                            <span class="text-muted">No logo</span>
+                                            <span class="text-muted">Sin logotipo</span>
                                         <?php endif; ?>
                                     </td>
                                     <td><?= $company['id']; ?></td>
@@ -59,9 +61,9 @@
                                     <td><?= htmlspecialchars($company['contact_phone'] ?? ''); ?></td>
                                     <td>
                                         <?php if ($company['is_active']): ?>
-                                            <span class="badge bg-success">Active</span>
+                                            <span class="badge bg-success">Activo</span>
                                         <?php else: ?>
-                                            <span class="badge bg-danger">Inactive</span>
+                                            <span class="badge bg-danger">Inactivo</span>
                                         <?php endif; ?>
                                     </td>
                                     <td><?= date('Y-m-d', strtotime($company['created_at'])); ?></td>
@@ -74,10 +76,10 @@
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <a href="/admin/companies/<?= $company['id']; ?>/hr" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-users-cog"></i> HR
+                                                <i class="fas fa-users-cog"></i> RR. HH.
                                             </a>
                                             <a href="/admin/companies/<?= $company['id']; ?>/employee" class="btn btn-sm btn-secondary">
-                                                <i class="fas fa-user-friends"></i> Employees
+                                                <i class="fas fa-user-friends"></i> Empleados
                                             </a>
                                             <button type="button" class="btn btn-sm btn-danger" 
                                                     data-bs-toggle="modal" 
@@ -91,19 +93,19 @@
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                                                        <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        Are you sure you want to delete the company "<?= htmlspecialchars($company['name']); ?>"?
-                                                        This action cannot be undone.
+                                                        ¿Está seguro de que desea eliminar la empresa "<?= htmlspecialchars($company['name']); ?>"?
+                                                        Esta acción no se puede deshacer.
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                                                         <form action="/admin/companies/<?= $company['id']; ?>/delete" method="POST">
                                                             <input type="hidden" name="_method" value="DELETE">
                                                             <input type="hidden" name="_token" value="<?= $_SESSION['csrf_token'] ?? ''; ?>">
-                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                            <button type="submit" class="btn btn-danger">Eliminar</button>
                                                         </form>
                                                     </div>
                                                 </div>
@@ -117,6 +119,7 @@
                 </table>
             </div>
         </div>
+    </div>
     </div>
 </div>
 
