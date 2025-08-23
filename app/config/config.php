@@ -1,11 +1,11 @@
 <?php
 // Error reporting
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 
 // Application settings
-define('APP_DEBUG', true);
-define('APP_ENV', 'development'); // 'production' or 'development'
+define('APP_DEBUG', false);
+define('APP_ENV', 'production'); // 'production' or 'development'
 
 // Database configuration
 define('DB_PATH', ROOT_PATH . '/database/siloe.db');
@@ -66,7 +66,53 @@ function verify_csrf_token($token) {
 
 // Helper function to generate asset URL
 function asset($path) {
-    return APP_URL . '/public/' . ltrim($path, '/');
+    $base = rtrim(APP_URL, '/');
+    $path = ltrim($path, '/');
+    return $base . '/' . $path;
+}
+
+// Helper function to generate a proper logo URL from various stored formats
+function logo_url($path) {
+    if (!$path) {
+        return '';
+    }
+    // If already an absolute URL, return as-is
+    if (preg_match('~^https?://~i', $path)) {
+        return $path;
+    }
+
+    // Normalize common stored formats
+    $trimmed = trim($path); // remove leading/trailing whitespace
+    // Handle paths starting with 'public/uploads/...'
+    if (stripos($trimmed, 'public/uploads/') === 0) {
+        $trimmed = substr($trimmed, strlen('public/')); // -> 'uploads/...'
+    }
+    // Also handle leading '/public/uploads/...'
+    if (strpos($trimmed, '/public/uploads/') === 0) {
+        $trimmed = substr($trimmed, strlen('/public/')); // -> 'uploads/...'
+    }
+
+    // If path starts with '/uploads/...', use asset directly
+    if (strpos($trimmed, '/uploads/') === 0) {
+        return asset($trimmed);
+    }
+    // If path starts with 'uploads/...', use asset directly (no extra prefixing)
+    if (strpos($trimmed, 'uploads/') === 0) {
+        return asset($trimmed);
+    }
+
+    // Handle legacy 'logos/...' or '/logos/...' paths by mapping to 'uploads/logos/...'
+    if (strpos($trimmed, '/logos/') === 0) {
+        $rest = substr($trimmed, strlen('/logos/'));
+        return asset('uploads/logos/' . ltrim($rest, '/'));
+    }
+    if (strpos($trimmed, 'logos/') === 0) {
+        $rest = substr($trimmed, strlen('logos/'));
+        return asset('uploads/logos/' . ltrim($rest, '/'));
+    }
+
+    // Otherwise, assume it's a bare filename and prepend the standard logos directory
+    return asset('uploads/logos/' . ltrim($trimmed, '/'));
 }
 
 // Helper function to generate URL
@@ -74,20 +120,5 @@ function url($path = '') {
     return APP_URL . '/' . ltrim($path, '/');
 }
 
-// Autoload classes
-spl_autoload_register(function ($class) {
-    $prefix = 'App\\';
-    $base_dir = APP_PATH . '/';
-    
-    $len = strlen($prefix);
-    if (strncmp($prefix, $class, $len) !== 0) {
-        return;
-    }
-    
-    $relative_class = substr($class, $len);
-    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
-    
-    if (file_exists($file)) {
-        require $file;
-    }
-});
+// Note: Autoloading is handled in `public/index.php` for web requests.
+// CLI scripts that need autoloading should include the appropriate bootstrap.
