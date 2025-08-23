@@ -79,15 +79,39 @@ class Response {
      * @return void
      */
     public function redirect($url, $statusCode = 302) {
-        if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
-            // Relative URL, make it absolute
-            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http';
-            $host = $_SERVER['HTTP_HOST'];
-            $url = $protocol . '://' . $host . '/' . ltrim($url, '/');
+        // Ensure session data is saved before redirect
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
         }
         
+        if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+            // Relative URL, make it absolute
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || 
+                       (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+                       (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on') ? 'https' : 'http';
+            
+            $host = $_SERVER['HTTP_HOST'];
+            $baseUrl = rtrim(str_replace('index.php', '', $_SERVER['SCRIPT_NAME']), '/');
+            $url = $protocol . '://' . $host . $baseUrl . '/' . ltrim($url, '/');
+        }
+        
+        // Clear output buffer
+        if (ob_get_level() > 0) {
+            ob_clean();
+        }
+        
+        // Set status code and location header
         $this->status($statusCode);
+        $this->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+        $this->header('Pragma', 'no-cache');
+        $this->header('Expires', '0');
         $this->header('Location', $url);
+        
+        // Ensure no further output is sent
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        }
+        
         exit;
     }
     

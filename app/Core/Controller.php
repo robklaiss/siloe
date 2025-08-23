@@ -91,6 +91,36 @@ class Controller {
     }
     
     /**
+     * Generate a CSRF token and add it to the view data
+     * 
+     * @param array $data View data array
+     * @return array Updated view data with CSRF token
+     */
+    protected function withCsrfToken($data = []) {
+        $data['csrf_token'] = $this->generateCsrfToken();
+        return $data;
+    }
+    
+    /**
+     * Generate a CSRF token
+     * 
+     * @return string The generated CSRF token
+     */
+    protected function generateCsrfToken() {
+        return $this->session->generateCsrfToken();
+    }
+    
+    /**
+     * Verify a CSRF token
+     * 
+     * @param string $token The token to verify
+     * @return bool True if the token is valid, false otherwise
+     */
+    protected function verifyCsrfToken($token) {
+        return $this->session->verifyCsrfToken($token);
+    }
+    
+    /**
      * Send a JSON response
      *
      * @param mixed $data The data to encode as JSON

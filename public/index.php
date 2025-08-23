@@ -1,9 +1,19 @@
 <?php
-// Enable error reporting for debugging
+// Error reporting: verbose logging, no display in production
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../storage/logs/php_errors.log');
+
+// When using PHP built-in server with index.php as the router, let it serve
+// existing static files directly (e.g., assets under /uploads/*) to avoid 404s.
+if (php_sapi_name() === 'cli-server') {
+    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $file = __DIR__ . $path;
+    if (is_file($file)) {
+        return false; // Delegate to the built-in webserver for static file
+    }
+}
 
 // Define application constants and paths
 define('ROOT_PATH', dirname(__DIR__));
@@ -12,7 +22,23 @@ define('VIEWS_PATH', APP_PATH . '/views');
 define('PUBLIC_PATH', __DIR__);
 
 define('APP_NAME', 'Siloe Lunch System');
-define('APP_URL', 'http://' . $_SERVER['HTTP_HOST']);
+// Get the base URL, handling both HTTP and HTTPS
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+$host = $_SERVER['HTTP_HOST'];
+$scriptName = dirname($_SERVER['SCRIPT_NAME']);
+
+// Remove 'public' from the path if it exists
+$basePath = str_replace('/public', '', $scriptName);
+
+// Define the base URL
+if ($basePath === '/') {
+    define('APP_URL', $protocol . $host);
+} else {
+    define('APP_URL', $protocol . $host . $basePath);
+}
+
+// Load the configuration file
+require_once APP_PATH . '/config/config.php';
 
 // Log request details for debugging
 function logRequest() {
@@ -61,38 +87,68 @@ spl_autoload_register(function ($class) {
     // If the file exists, require it
     if (file_exists($file)) {
         require $file;
+    } else {
+        // Fallback for case-sensitive servers when local dev used lowercase directory names
+        $altFile = str_replace('/Core/', '/core/', $file);
+        if ($altFile !== $file && file_exists($altFile)) {
+            require $altFile;
+        }
     }
 });
 
 // Start session with secure settings
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || 
+            (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+            (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on');
+
 $sessionParams = [
     'cookie_lifetime' => 0, // 0 = Until browser is closed
     'cookie_path' => '/',
     'cookie_domain' => '',
-    'cookie_secure' => false, // TODO: Set to true in production with HTTPS
+    'cookie_secure' => $isHttps, // Set based on current protocol
     'cookie_httponly' => true, // Prevent client-side script access
     'cookie_samesite' => 'Lax', // Mitigates CSRF
     'use_strict_mode' => 1, // Prevent session fixation attacks
     'use_only_cookies' => 1,
     'gc_maxlifetime' => 1440, // 24 minutes
     'gc_probability' => 1,
-    'gc_divisor' => 100
+    'gc_divisor' => 100,
+    'read_and_close' => false // Make sure session is not closed too early
 ];
 
+// Ensure session is started only once and with proper parameters
 if (session_status() === PHP_SESSION_NONE) {
+    // Set session name to avoid conflicts
+    session_name('siloe_session');
+    
+    // Start the session
     session_start($sessionParams);
+    
+    // Regenerate session ID to prevent session fixation
+    if (empty($_SESSION['initiated'])) {
+        session_regenerate_id(true);
+        $_SESSION['initiated'] = true;
+    }
 }
 
 // Log the request
 logRequest();
 
-// Load configuration
-require_once APP_PATH . '/config/config.php';
-
 // Load helper functions
 require_once APP_PATH . '/helpers/functions.php';
 
 // Create router instance
+// Fallback: if autoloader fails to resolve App\Core\Router due to opcode/realpath cache,
+// explicitly require the file to keep the site running.
+if (!class_exists('App\\Core\\Router')) {
+    $fallbackRouter = APP_PATH . '/Core/Router.php';
+    if (file_exists($fallbackRouter)) {
+        require_once $fallbackRouter;
+        error_log('Fallback loaded Core/Router.php');
+    } else {
+        error_log('Fallback missing: ' . $fallbackRouter);
+    }
+}
 $router = new App\Core\Router();
 
 // Load routes

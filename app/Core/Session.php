@@ -149,9 +149,31 @@ class Session {
      * @return string
      */
     public static function generateCsrfToken() {
-        $token = bin2hex(random_bytes(32));
-        self::set('csrf_token', $token);
+        // Check if we already have a valid token
+        $token = self::get('csrf_token');
+        
+        // If no token exists or it's expired, generate a new one
+        if (empty($token)) {
+            $token = bin2hex(random_bytes(32));
+            self::set('csrf_token', $token);
+            error_log('Generated new CSRF token: ' . $token);
+        } else {
+            error_log('Using existing CSRF token: ' . $token);
+        }
+        
         return $token;
+    }
+    
+    /**
+     * Get the current CSRF token
+     *
+     * @return string|null The CSRF token or null if not set
+     */
+    public static function getCsrfToken() {
+        if (!isset($_SESSION['csrf_token'])) {
+            self::generateCsrfToken();
+        }
+        return $_SESSION['csrf_token'] ?? null;
     }
     
     /**
@@ -161,6 +183,25 @@ class Session {
      * @return bool
      */
     public static function verifyCsrfToken($token) {
-        return self::get('csrf_token') === $token;
+        if (!isset($_SESSION['csrf_token'])) {
+            error_log('CSRF token not found in session');
+            return false;
+        }
+        
+        $isValid = hash_equals($_SESSION['csrf_token'], $token);
+        
+        // After verification, always regenerate the token for the next request
+        self::generateCsrfToken();
+        
+        if ($isValid) {
+            error_log('CSRF token verified successfully');
+        } else {
+            error_log(sprintf('CSRF token verification failed. Expected: %s, Got: %s', 
+                $_SESSION['csrf_token'], 
+                $token
+            ));
+        }
+        
+        return $isValid;
     }
 }

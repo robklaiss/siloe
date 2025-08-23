@@ -99,7 +99,43 @@ class Router
                         $controllerInstance = $reflectionClass->newInstanceArgs($dependencies);
 
                         if (method_exists($controllerInstance, $action)) {
-                            call_user_func_array([$controllerInstance, $action], array_merge([$request, $response], $params));
+                            // Get the method's parameters using reflection
+                            $reflectionMethod = new \ReflectionMethod($controllerInstance, $action);
+                            $methodParams = $reflectionMethod->getParameters();
+                            $methodArgs = [];
+                            
+                            // First, try to match by type hint
+                            foreach ($methodParams as $param) {
+                                $paramType = $param->getType();
+                                $paramName = $param->getName();
+                                
+                                if ($paramType && !$paramType->isBuiltin()) {
+                                    $typeName = $paramType->getName();
+                                    if ($typeName === 'App\Core\Request' || $typeName === Request::class) {
+                                        $methodArgs[] = $request;
+                                        continue;
+                                    } elseif ($typeName === 'App\Core\Response' || $typeName === Response::class) {
+                                        $methodArgs[] = $response;
+                                        continue;
+                                    }
+                                }
+                                
+                                // If no type hint matches, try to match by parameter name from route
+                                if (array_key_exists($paramName, $params)) {
+                                    $methodArgs[] = $params[$paramName];
+                                } elseif ($param->isDefaultValueAvailable()) {
+                                    $methodArgs[] = $param->getDefaultValue();
+                                } else {
+                                    $methodArgs[] = null;
+                                }
+                            }
+                            
+                            // If we didn't add any parameters but have route params, use them
+                            if (empty($methodArgs) && !empty($params)) {
+                                $methodArgs = array_values($params);
+                            }
+                            
+                            call_user_func_array([$controllerInstance, $action], $methodArgs);
                             return;
                         }
                     } catch (\ReflectionException $e) {
