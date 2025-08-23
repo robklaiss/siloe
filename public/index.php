@@ -87,12 +87,6 @@ spl_autoload_register(function ($class) {
     // If the file exists, require it
     if (file_exists($file)) {
         require $file;
-    } else {
-        // Fallback for case-sensitive servers when local dev used lowercase directory names
-        $altFile = str_replace('/Core/', '/core/', $file);
-        if ($altFile !== $file && file_exists($altFile)) {
-            require $altFile;
-        }
     }
 });
 
@@ -138,17 +132,6 @@ logRequest();
 require_once APP_PATH . '/helpers/functions.php';
 
 // Create router instance
-// Fallback: if autoloader fails to resolve App\Core\Router due to opcode/realpath cache,
-// explicitly require the file to keep the site running.
-if (!class_exists('App\\Core\\Router')) {
-    $fallbackRouter = APP_PATH . '/Core/Router.php';
-    if (file_exists($fallbackRouter)) {
-        require_once $fallbackRouter;
-        error_log('Fallback loaded Core/Router.php');
-    } else {
-        error_log('Fallback missing: ' . $fallbackRouter);
-    }
-}
 $router = new App\Core\Router();
 
 // Load routes
