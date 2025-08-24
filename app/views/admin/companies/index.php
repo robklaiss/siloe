@@ -1,4 +1,9 @@
-<?php require_once __DIR__ . '/../../partials/header.php'; ?>
+<?php 
+    // Hide top navbar and container when using the admin sidebar layout
+    $hideNavbar = true; 
+    $wrapContainer = false; 
+    require_once __DIR__ . '/../../partials/header.php'; 
+?>
 
 <div class="min-vh-100 d-flex">
     <?php require_once __DIR__ . '/../../partials/admin_sidebar.php'; ?>
@@ -121,6 +126,6 @@
         </div>
     </div>
     </div>
-</div>
+    </div>
 
 <?php require_once __DIR__ . '/../../partials/footer.php'; ?>

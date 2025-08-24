@@ -16,6 +16,7 @@
 </head>
 <body>
 
+<?php if (empty($hideNavbar)): ?>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container-fluid">
         <a class="navbar-brand" href="/admin/dashboard">Panel de Administración</a>
@@ -52,5 +53,8 @@
         </div>
     </div>
 </nav>
+<?php endif; ?>
 
+<?php if (!isset($wrapContainer) || $wrapContainer): ?>
 <div class="container">
+<?php endif; ?>
