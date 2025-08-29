@@ -1,8 +1,8 @@
 <?php
 
-// Connect to the database
-$db = new PDO('sqlite:' . __DIR__ . '/database/siloe.db');
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+// Use shared DB connection to ensure PRAGMA foreign_keys is ON
+require_once __DIR__ . '/config/database.php';
+$db = getDbConnection();
 
 // Get all menu items grouped by name and description
 $query = "SELECT name, description, MIN(id) as keep_id, GROUP_CONCAT(id) as all_ids 

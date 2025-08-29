@@ -13,34 +13,34 @@ class DashboardController extends Controller {
     /**
      * Display the dashboard based on user role
      */
-    public function index(Request $request, Response $response) {
+    public function index() {
         // Check if user is logged in
-        if (!Session::get('user_id')) {
-            Session::setFlash('error', 'You must be logged in to access this page.');
-            return $response->redirect('/login');
+        if (!$this->session->get('user_id')) {
+            $this->session->setFlash('error', 'You must be logged in to access this page.');
+            return $this->response->redirect('/login');
         }
         
-        // Get user role and redirect to appropriate dashboard
-        $userRole = Session::get('user_role');
+        $userRole = $this->session->get('user_role');
+        $userId = $this->session->get('user_id');
         
         // Redirect based on user role
         switch ($userRole) {
             case 'admin':
-                return $response->redirect('/admin/dashboard');
+                return $this->response->redirect('/admin/dashboard');
             case 'company_admin':
-                return $response->redirect('/hr/dashboard');
+            case 'hr':
+                $companyId = $this->session->get('company_id');
+                if ($companyId) {
+                    return $this->response->redirect('/hr/dashboard/' . $companyId);
+                } else {
+                    $this->session->setFlash('error', 'Company not assigned.');
+                    return $this->response->redirect('/login');
+                }
             case 'employee':
-                return $response->redirect('/menu/select');
+                return $this->response->redirect('/employee/menu');
             default:
-                // If role is not recognized, show a generic dashboard
-                return $this->render('dashboard/index', [
-                    'title' => 'Dashboard - ' . APP_NAME,
-                    'user' => [
-                        'id' => Session::get('user_id'),
-                        'email' => Session::get('user_email'),
-                        'role' => $userRole
-                    ]
-                ]);
+                $this->session->setFlash('error', 'Invalid user role.');
+                return $this->response->redirect('/login');
         }
     }
 }

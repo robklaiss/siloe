@@ -86,8 +86,40 @@ class Controller {
             throw new \Exception($error);
         }
         
-        // Output the content
-        echo $content;
+        // Determine layout handling
+        // Allow explicit override via $data['layout'] (string path like 'layouts/app', false or 'none' to disable)
+        $explicitLayout = isset($data) && is_array($data) ? ($data['layout'] ?? null) : null;
+
+        // If layout explicitly disabled
+        if ($explicitLayout === false || $explicitLayout === 'none') {
+            error_log("Layout disabled explicitly. Outputting content directly.");
+            echo $content;
+            return;
+        }
+
+        // If explicit layout string provided, compute its path
+        if (is_string($explicitLayout) && $explicitLayout !== '') {
+            $layoutPath = VIEWS_PATH . '/' . ltrim(str_replace('.', '/', $explicitLayout), '/') . '.php';
+        } else {
+            // Auto-detect: if content is a full HTML document, output directly
+            if (stripos($content, '<!DOCTYPE') !== false || stripos($content, '<html') !== false) {
+                error_log("Detected full HTML document in view output. Outputting content directly.");
+                echo $content;
+                return;
+            }
+            // Default layout
+            $layoutPath = VIEWS_PATH . '/layouts/app.php';
+        }
+
+        // Render with layout if it exists; otherwise fallback to direct content
+        if (file_exists($layoutPath)) {
+            error_log("Rendering layout: " . $layoutPath);
+            // Make $content and $viewFile available to layout
+            require $layoutPath;
+        } else {
+            error_log("Layout file not found: " . $layoutPath . ". Outputting content directly.");
+            echo $content;
+        }
     }
     
     /**

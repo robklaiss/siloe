@@ -5,13 +5,15 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../storage/logs/php_errors.log');
 
-// When using PHP built-in server with index.php as the router, let it serve
-// existing static files directly (e.g., assets under /uploads/*) to avoid 404s.
+// When using PHP built-in server, handle static assets correctly.
+// This ensures that requests for files like CSS, JS, or images are served directly.
 if (php_sapi_name() === 'cli-server') {
-    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    $file = __DIR__ . $path;
-    if (is_file($file)) {
-        return false; // Delegate to the built-in webserver for static file
+    $url = parse_url($_SERVER['REQUEST_URI']);
+    $path = $url['path'];
+    // Check if the requested path is for a file that exists in the public directory.
+    if ($path !== '/' && file_exists(__DIR__ . $path)) {
+        // Let the built-in server handle the request for the static file.
+        return false;
     }
 }
 
@@ -22,20 +24,6 @@ define('VIEWS_PATH', APP_PATH . '/views');
 define('PUBLIC_PATH', __DIR__);
 
 define('APP_NAME', 'Siloe Lunch System');
-// Get the base URL, handling both HTTP and HTTPS
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
-$host = $_SERVER['HTTP_HOST'];
-$scriptName = dirname($_SERVER['SCRIPT_NAME']);
-
-// Remove 'public' from the path if it exists
-$basePath = str_replace('/public', '', $scriptName);
-
-// Define the base URL
-if ($basePath === '/') {
-    define('APP_URL', $protocol . $host);
-} else {
-    define('APP_URL', $protocol . $host . $basePath);
-}
 
 // Load the configuration file
 require_once APP_PATH . '/config/config.php';
@@ -130,6 +118,9 @@ logRequest();
 
 // Load helper functions
 require_once APP_PATH . '/helpers/functions.php';
+
+// Set view path
+App\Core\View::setViewPath(APP_PATH . '/views');
 
 // Create router instance
 $router = new App\Core\Router();

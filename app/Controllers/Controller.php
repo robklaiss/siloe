@@ -40,9 +40,10 @@ class Controller {
     
     /**
      * Render a view
+     * @return \App\Core\View
      */
     protected function view($view, $data = []) {
-        return View::render($view, $data);
+        return View::make($view, $data);
     }
     
     /**
@@ -258,5 +259,12 @@ class Controller {
     protected function clearValidationErrors() {
         unset($_SESSION['errors']);
         unset($_SESSION['old']);
+    }
+    
+    /**
+     * Verify CSRF token
+     */
+    protected function verifyCsrfToken($token) {
+        return !empty($token) && $token === ($_SESSION['csrf_token'] ?? '');
     }
 }

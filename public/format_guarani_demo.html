@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>formatGuarani Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .demo-container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .result {
+            font-weight: bold;
+            color: #007bff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        code {
+            background-color: #f8f8f8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>formatGuarani() Function Demo</h1>
+    
+    <div class="demo-container">
+        <h2>Function Implementation</h2>
+        <pre><code>/**
+ * Format a number as Paraguayan Guaraní currency
+ * @param {number} amount - The amount to format
+ * @returns {string} Formatted currency string
+ */
+function formatGuarani(amount) {
+    return new Intl.NumberFormat('es-PY', {
+        style: 'currency',
+        currency: 'PYG',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(amount);
+}</code></pre>
+    </div>
+
+    <div class="demo-container">
+        <h2>Example Results</h2>
+        <table>
+            <tr>
+                <th>Input</th>
+                <th>Output</th>
+            </tr>
+            <tr>
+                <td><code>15000</code></td>
+                <td id="example1" class="result"></td>
+            </tr>
+            <tr>
+                <td><code>1234567.89</code> (with decimals)</td>
+                <td id="example2" class="result"></td>
+            </tr>
+            <tr>
+                <td><code>50</code></td>
+                <td id="example3" class="result"></td>
+            </tr>
+            <tr>
+                <td><code>9876543210</code> (large number)</td>
+                <td id="example4" class="result"></td>
+            </tr>
+            <tr>
+                <td><code>99.1</code> (small decimal)</td>
+                <td id="example5" class="result"></td>
+            </tr>
+            <tr>
+                <td><code>0</code></td>
+                <td id="example6" class="result"></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="demo-container">
+        <h2>Usage</h2>
+        <p>This function has been added to <code>main.js</code> and is available globally throughout the application.</p>
+        <p>Example usage in JavaScript:</p>
+        <pre><code>// Format a price
+const price = 25000;
+const formattedPrice = formatGuarani(price);
+element.textContent = formattedPrice;</code></pre>
+        
+        <p>Example usage in PHP views (with inline JS):</p>
+        <pre><code>&lt;span class="price">&lt;?= htmlspecialchars("Precio: ") ?>&lt;span id="price-display">&lt;?= $product['price'] ?>&lt;/span>&lt;/span>
+
+&lt;script>
+    document.getElementById('price-display').textContent = formatGuarani(<?= $product['price'] ?>);
+&lt;/script></code></pre>
+    </div>
+
+    <script>
+        /**
+         * Format a number as Paraguayan Guaraní currency
+         * @param {number} amount - The amount to format
+         * @returns {string} Formatted currency string
+         */
+        function formatGuarani(amount) {
+            return new Intl.NumberFormat('es-PY', {
+                style: 'currency',
+                currency: 'PYG',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Fill in examples
+        document.getElementById('example1').textContent = formatGuarani(15000);
+        document.getElementById('example2').textContent = formatGuarani(1234567.89);
+        document.getElementById('example3').textContent = formatGuarani(50);
+        document.getElementById('example4').textContent = formatGuarani(9876543210);
+        document.getElementById('example5').textContent = formatGuarani(99.1);
+        document.getElementById('example6').textContent = formatGuarani(0);
+
+        // Log to console as well
+        console.log('Example 1:', formatGuarani(15000));
+        console.log('Example 2:', formatGuarani(1234567.89));
+        console.log('Example 3:', formatGuarani(50));
+        console.log('Large amount:', formatGuarani(9876543210));
+        console.log('Small decimal:', formatGuarani(99.1));
+        console.log('Zero amount:', formatGuarani(0));
+    </script>
+</body>
+</html>

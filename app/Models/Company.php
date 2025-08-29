@@ -15,17 +15,31 @@ class Company {
      * Get database connection
      */
     private function getDbConnection() {
-        $db = new PDO('sqlite:' . __DIR__ . '/../../database/siloe.db');
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        return $db;
+        // Include the database config to get the function
+        if (!function_exists('getDbConnection')) {
+            require_once __DIR__ . '/../../config/database.php';
+        }
+        return getDbConnection();
     }
 
     /**
      * Get all companies
+     * 
+     * @param bool $activeOnly Whether to return only active companies
+     * @return array Array of companies
      */
-    public function getAllCompanies() {
-        $stmt = $this->db->query('SELECT * FROM companies ORDER BY name ASC');
+    public function getAllCompanies($activeOnly = false) {
+        $sql = 'SELECT * FROM companies';
+        $params = [];
+        
+        if ($activeOnly) {
+            $sql .= ' WHERE is_active = 1';
+        }
+        
+        $sql .= ' ORDER BY name ASC';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        
         return $stmt->fetchAll();
     }
 

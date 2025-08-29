@@ -24,7 +24,7 @@ class View {
     /**
      * The layout file to use
      */
-    protected $layout = 'layouts/main';
+    protected $layout = null;
     
     /**
      * The section content
@@ -125,6 +125,10 @@ class View {
         $file = self::$viewPath . $view;
         
         if (!file_exists($file)) {
+            // If this is a layout that doesn't exist, just return the content without layout
+            if ($return && isset($this->data['content'])) {
+                return $this->data['content'];
+            }
             throw new \Exception("View [{$view}] not found.");
         }
         
@@ -193,6 +197,13 @@ class View {
      * Render a view (static method)
      */
     public static function renderView($view, $data = []) {
+        return static::make($view, $data)->renderContent();
+    }
+    
+    /**
+     * Render a view (static method)
+     */
+    public static function render($view, $data = []) {
         return static::make($view, $data)->renderContent();
     }
     

@@ -2,24 +2,24 @@
 
 namespace App\Controllers\Admin;
 
-use App\Core\Controller;
+use App\Core\View;
+use App\Models\DeleteRequest;
 
 class DashboardController extends Controller {
     public function __construct() {
-        // Check if user is logged in and is an admin
-        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
-            header('Location: /login');
-            exit;
-        }
+        parent::__construct();
     }
     
     public function index() {
         // Get some basic stats for the dashboard
         $stats = $this->getStats();
         
+        // Define a default app name if APP_NAME constant is not defined
+        $appName = defined('APP_NAME') ? APP_NAME : 'Siloe';
+        
         // Render the admin dashboard view
-        $this->view('admin/dashboard', [
-            'title' => 'Admin Dashboard - ' . APP_NAME,
+        return $this->view('admin/dashboard', [
+            'title' => 'Panel de Administración - ' . $appName,
             'stats' => $stats
         ]);
     }
@@ -47,23 +47,29 @@ class DashboardController extends Controller {
                 LIMIT 5
             ')->fetchAll();
             
+            // Obtener el recuento de solicitudes de eliminación pendientes
+            $deleteRequestModel = new DeleteRequest();
+            $pendingDeleteRequests = $deleteRequestModel->countPendingRequests();
+
             return [
                 'users' => $userCount,
                 'last_login' => date('Y-m-d H:i:s'),
                 'latest_menus' => $latestMenus,
                 'latest_orders' => $latestOrders,
                 'menu_count' => $db->query('SELECT COUNT(*) as count FROM menus')->fetch()['count'],
-                'order_count' => $db->query('SELECT COUNT(*) as count FROM orders')->fetch()['count']
+                'order_count' => $db->query('SELECT COUNT(*) as count FROM orders')->fetch()['count'],
+                'pending_delete_requests' => $pendingDeleteRequests
             ];
         } catch (\Exception $e) {
-            error_log('Error getting dashboard stats: ' . $e->getMessage());
+            error_log('Error al obtener estadísticas del panel: ' . $e->getMessage());
             return [
                 'users' => 0,
                 'last_login' => date('Y-m-d H:i:s'),
                 'latest_menus' => [],
                 'latest_orders' => [],
                 'menu_count' => 0,
-                'order_count' => 0
+                'order_count' => 0,
+                'pending_delete_requests' => 0
             ];
         }
     }

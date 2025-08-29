@@ -10,15 +10,63 @@ class Menu {
     public function __construct() {
         $this->db = $this->getDbConnection();
     }
+    
+    /**
+     * Get all weekly menu items
+     */
+    public function getWeeklyMenuItems() {
+        $stmt = $this->db->query('SELECT * FROM weekly_menu_items WHERE is_available = 1 ORDER BY name ASC');
+        return $stmt->fetchAll();
+    }
+    
+    /**
+     * Get weekly items for a specific menu
+     * 
+     * @param int $menuId The ID of the menu
+     * @return array Array of weekly item IDs
+     */
+    public function getWeeklyItemsForMenu($menuId) {
+        $stmt = $this->db->prepare('SELECT weekly_item_id FROM menu_weekly_items WHERE menu_id = :menu_id');
+        $stmt->execute([':menu_id' => $menuId]);
+        return array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'weekly_item_id');
+    }
+    
+    /**
+     * Add a weekly menu item to today's menu
+     */
+    public function addWeeklyItemToMenu($menuId, $weeklyItemId) {
+        $weeklyItem = $this->getWeeklyMenuItemById($weeklyItemId);
+        if (!$weeklyItem) {
+            return false;
+        }
+        
+        // Link the existing weekly item to the menu via join table for consistency
+        $stmt = $this->db->prepare('
+            INSERT OR IGNORE INTO menu_weekly_items (menu_id, weekly_item_id)
+            VALUES (:menu_id, :weekly_item_id)
+        ');
+        
+        return $stmt->execute([
+            ':menu_id' => $menuId,
+            ':weekly_item_id' => $weeklyItemId
+        ]);
+    }
+    
+    /**
+     * Get weekly menu item by ID
+     */
+    public function getWeeklyMenuItemById($id) {
+        $stmt = $this->db->prepare('SELECT * FROM weekly_menu_items WHERE id = :id');
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch();
+    }
 
     /**
      * Get database connection
      */
     private function getDbConnection() {
-        $db = new PDO('sqlite:' . __DIR__ . '/../../database/siloe.db');
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        return $db;
+        // Use the application-wide connection which enables PRAGMA foreign_keys
+        return \getDbConnection();
     }
 
     /**
@@ -42,15 +90,72 @@ class Menu {
      * Get available menu items for a specific date
      */
     public function getAvailableMenuItems($date) {
+        error_log("Obteniendo ítems de menú disponibles para la fecha: " . $date);
+        
+        $results = [
+            'daily' => [],
+            'regular' => []
+        ];
+        
+        // First, try to find a menu for the exact date (daily specials)
         $stmt = $this->db->prepare('
-            SELECT mi.* 
+            SELECT mi.*, 1 as is_daily
             FROM menu_items mi
             JOIN menus m ON mi.menu_id = m.id
-            WHERE m.date = :date AND mi.is_available = 1
+            WHERE date(m.date) = date(:date) 
+              AND mi.is_available = 1 
+              AND m.available = 1
             ORDER BY mi.name ASC
         ');
         $stmt->execute([':date' => $date]);
-        return $stmt->fetchAll();
+        $dailyItems = $stmt->fetchAll();
+        
+        // If no results, try with the date as a string (for backward compatibility)
+        if (empty($dailyItems)) {
+            $stmt = $this->db->prepare('
+                SELECT mi.*, 1 as is_daily
+                FROM menu_items mi
+                JOIN menus m ON mi.menu_id = m.id
+                WHERE m.date = :date_str 
+                  AND mi.is_available = 1 
+                  AND m.available = 1
+                ORDER BY mi.name ASC
+            ');
+            $stmt->execute([':date_str' => (string)$date]);
+            $dailyItems = $stmt->fetchAll();
+        }
+        
+        // Get regular menu items (always available)
+        $stmt = $this->db->prepare('
+            SELECT mi.*, 0 as is_daily
+            FROM menu_items mi
+            WHERE mi.is_available = 1 
+              AND mi.is_weekly_item = 0
+              AND NOT EXISTS (
+                  SELECT 1 FROM menus m 
+                  WHERE m.id = mi.menu_id 
+                  AND m.available = 1 
+                  AND (date(m.date) = date(:date) OR m.date = :date_str)
+              )
+            ORDER BY mi.name ASC
+        ');
+        $stmt->execute([
+            ':date' => $date,
+            ':date_str' => (string)$date
+        ]);
+        $regularItems = $stmt->fetchAll();
+        
+        $results['daily'] = $dailyItems;
+        $results['regular'] = $regularItems;
+        
+        error_log(sprintf(
+            "Se encontraron %d ítems diarios y %d ítems regulares para la fecha: %s",
+            count($dailyItems),
+            count($regularItems),
+            $date
+        ));
+        
+        return $results;
     }
 
     /**
@@ -190,6 +295,20 @@ class Menu {
         $stmt = $this->db->prepare('SELECT * FROM menu_items WHERE menu_id = :menu_id ORDER BY name ASC');
         $stmt->execute([':menu_id' => $menuId]);
         return $stmt->fetchAll();
+    }
+    
+    /**
+     * Get the most recent available menu
+     */
+    public function getMostRecentAvailableMenu() {
+        $stmt = $this->db->prepare('
+            SELECT * FROM menus 
+            WHERE available = 1 
+            ORDER BY date DESC 
+            LIMIT 1
+        ');
+        $stmt->execute();
+        return $stmt->fetch();
     }
 
     /**

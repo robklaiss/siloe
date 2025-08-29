@@ -24,6 +24,15 @@ class Router
     public function delete($route, $controller, $action) { return $this->add('DELETE', $route, $controller, $action); }
     public function any($route, $controller, $action) { return $this->add('ANY', $route, $controller, $action); }
 
+    /**
+     * Get all registered routes
+     * @return array
+     */
+    public function getRoutes()
+    {
+        return $this->routes;
+    }
+
     protected function getUri()
     {
         return trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
@@ -135,7 +144,18 @@ class Router
                                 $methodArgs = array_values($params);
                             }
                             
-                            call_user_func_array([$controllerInstance, $action], $methodArgs);
+                            $result = call_user_func_array([$controllerInstance, $action], $methodArgs);
+                            
+                            // Handle the return value
+                            if ($result !== null) {
+                                if (is_string($result)) {
+                                    echo $result;
+                                } elseif (is_object($result) && method_exists($result, '__toString')) {
+                                    echo $result->__toString();
+                                } else {
+                                    echo $result;
+                                }
+                            }
                             return;
                         }
                     } catch (\ReflectionException $e) {

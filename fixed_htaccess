@@ -1,0 +1,84 @@
+# Enable the rewrite engine
+RewriteEngine On
+Options +SymLinksIfOwnerMatch
+
+# Allow direct access to login.php and admin_access.php
+RewriteRule ^login\.php$ - [L]
+RewriteRule ^admin_access\.php$ - [L]
+
+# Allow access to existing files and directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirect all other requests to index.php
+RewriteRule ^ index.php [L]
+
+# Handle Authorization Header
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Redirect Trailing Slashes If Not A Folder...
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} (.+)/$
+RewriteRule ^ %1 [L,R=301]
+
+# Add MIME types for common file types
+<IfModule mod_mime.c>
+    AddType text/css .css
+    AddType application/javascript .js
+    AddType image/svg+xml .svg
+    AddType image/x-icon .ico
+    AddType image/webp .webp
+    AddType application/font-woff .woff
+    AddType application/font-woff2 .woff2
+    AddType application/vnd.ms-fontobject .eot
+    AddType application/x-font-ttf .ttf
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# Disable Directory Browsing
+Options -Indexes
+
+# Block Access to Hidden Files and Directories
+<IfModule mod_rewrite.c>
+    RewriteCond %{SCRIPT_FILENAME} -d [OR]
+    RewriteCond %{SCRIPT_FILENAME} -f
+    RewriteRule "(^|/)\." - [F]
+</IfModule>
+
+# Block Access to Sensitive Files
+<FilesMatch "^\.|composer\.json|composer\.lock|package\.json|package-lock\.json|webpack\.config\.js|yarn\.lock|README\.md|CHANGELOG\.md|LICENSE\.txt|Dockerfile">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Disable Server Signature
+ServerSignature Off
+
+# Handle Errors (use relative paths so this works under subdirectories like /siloe)
+ErrorDocument 403 index.php?url=error/403
+ErrorDocument 404 index.php?url=error/404
+ErrorDocument 500 index.php?url=error/500
+
+# PHP Settings
+<IfModule mod_php7.c>
+    php_flag display_errors off
+    php_value max_execution_time 300
+    php_value max_input_time 300
+    php_value max_input_vars 1000
+    php_value memory_limit 256M
+    php_value post_max_size 64M
+    php_value session.gc_maxlifetime 1440
+    php_value session.save_path "/tmp"
+    php_value upload_max_filesize 64M
+    php_flag zlib.output_compression on
+</IfModule>

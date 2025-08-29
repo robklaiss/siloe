@@ -21,19 +21,19 @@
         }
         
         body {
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #f8f9fa 0%, #eaf4ff 100%);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             line-height: 1.6;
             color: #212529;
         }
         
         .login-container {
-            max-width: 400px;
+            max-width: 420px;
             margin: 5rem auto;
             padding: 2rem;
             background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border-radius: 0.75rem;
+            box-shadow: 0 0.75rem 2rem rgba(13, 110, 253, 0.08);
         }
         
         .login-header {
@@ -166,7 +166,7 @@
         }
         
         body {
-            background-color: var(--bs-body-bg);
+            background: linear-gradient(135deg, #f8f9fa 0%, #eaf4ff 100%);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             line-height: 1.6;
             color: var(--bs-dark);
@@ -203,6 +203,12 @@
         
         .bi {
             margin-right: 0.5rem;
+        }
+        
+        .brand-logo {
+            max-height: 72px;
+            width: auto;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
     </style>
 </head>

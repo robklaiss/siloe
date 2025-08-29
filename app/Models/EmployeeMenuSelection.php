@@ -43,13 +43,14 @@ class EmployeeMenuSelection
     {
         try {
             $stmt = $this->db->prepare('INSERT INTO employee_menu_selections 
-                (user_id, menu_item_id, selection_date, notes, status, company_id, created_at, updated_at)
-                VALUES (:user_id, :menu_item_id, :selection_date, :notes, :status, :company_id, :created_at, :updated_at)');
+                (user_id, menu_item_id, order_id, selection_date, notes, status, company_id, created_at, updated_at)
+                VALUES (:user_id, :menu_item_id, :order_id, :selection_date, :notes, :status, :company_id, :created_at, :updated_at)');
 
             $now = date('Y-m-d H:i:s');
             return $stmt->execute([
                 ':user_id' => $data['user_id'],
                 ':menu_item_id' => $data['menu_item_id'],
+                ':order_id' => $data['order_id'] ?? null,
                 ':selection_date' => $data['selection_date'],
                 ':notes' => $data['notes'],
                 ':status' => $data['status'],
@@ -187,12 +188,91 @@ class EmployeeMenuSelection
     }
 
     /**
+     * Get all selections for a specific user, ordered by date (newest first)
+     * 
+     * @param int $userId The ID of the user
+     * @return array Array of menu selections
+     */
+    public function getSelectionsByUser(int $userId): array
+    {
+        try {
+            $stmt = $this->db->prepare('SELECT s.*, m.name as menu_item_name, m.description as menu_item_description,
+                                             m.price as menu_item_price
+                                      FROM employee_menu_selections s
+                                      JOIN menu_items m ON s.menu_item_id = m.id
+                                      WHERE s.user_id = :user_id
+                                      ORDER BY s.selection_date DESC, s.created_at DESC');
+            
+            $stmt->execute([':user_id' => $userId]);
+            
+            return $stmt->fetchAll() ?: [];
+        } catch (PDOException $e) {
+            error_log('Error getting user selections: ' . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get menu selections by company and date
+     */
+    public function getSelectionsByCompanyAndDate($companyId, $date) {
+        try {
+            $stmt = $this->db->prepare('SELECT ems.*, u.name as user_name, u.email as user_email, 
+                                             mi.name as menu_item_name, mi.description as menu_item_description
+                                      FROM employee_menu_selections ems
+                                      JOIN users u ON ems.user_id = u.id
+                                      JOIN menu_items mi ON ems.menu_item_id = mi.id
+                                      WHERE ems.company_id = :company_id 
+                                      AND ems.selection_date = :date
+                                      ORDER BY u.name ASC, ems.created_at DESC');
+            $stmt->execute([
+                ':company_id' => $companyId,
+                ':date' => $date
+            ]);
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log('Error getting selections by company and date: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get selections by company and date range
+     * 
+     * @param int $companyId Company ID
+     * @param string $startDate Start date (Y-m-d format)
+     * @param string $endDate End date (Y-m-d format)
+     * @return array Array of selections
+     */
+    public function getSelectionsByCompanyAndDateRange($companyId, $startDate, $endDate) {
+        try {
+            $stmt = $this->db->prepare('SELECT ems.*, u.name as user_name, u.email as user_email, 
+                                             mi.name as menu_item_name, mi.description as menu_item_description
+                                      FROM employee_menu_selections ems
+                                      JOIN users u ON ems.user_id = u.id
+                                      JOIN menu_items mi ON ems.menu_item_id = mi.id
+                                      WHERE ems.company_id = :company_id 
+                                      AND ems.selection_date BETWEEN :start_date AND :end_date
+                                      ORDER BY ems.selection_date DESC, u.name ASC, ems.created_at DESC');
+            $stmt->execute([
+                ':company_id' => $companyId,
+                ':start_date' => $startDate,
+                ':end_date' => $endDate
+            ]);
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log('Error getting selections by company and date range: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
      * Get selection statistics for HR dashboard
      */
     public function getSelectionStats(int $companyId, string $date): array
     {
         try {
-            // Get total employees
+            // Get total active employees in the company
             $stmt = $this->db->prepare('SELECT COUNT(*) as total_employees 
                 FROM users 
                 WHERE company_id = :company_id 

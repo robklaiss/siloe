@@ -4,7 +4,7 @@
 
 <footer class="footer mt-auto py-3 bg-light">
     <div class="container text-center">
-        <span class="text-muted">© <?= date('Y') ?> Your Company Name</span>
+        <span class="text-muted small">© 2025 Siloe</span>
     </div>
 </footer>
 

@@ -3,8 +3,43 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use PDO;
+use PDOException;
 
 class AuthController extends Controller {
+    /**
+     * Get a database connection
+     * 
+     * @return PDO
+     * @throws PDOException
+     */
+    protected function getDbConnection() {
+        static $db = null;
+        
+        if ($db === null) {
+            try {
+                if (defined('DB_DRIVER') && DB_DRIVER === 'mysql') {
+                    $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
+                    $db = new PDO($dsn, DB_USER, DB_PASS, [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                        PDO::ATTR_EMULATE_PREPARES => false,
+                    ]);
+                } else {
+                    // Fallback to SQLite
+                    $dbPath = defined('DB_PATH') ? DB_PATH : __DIR__ . '/../../database/siloe.db';
+                    $db = new PDO('sqlite:' . $dbPath);
+                    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $db->exec('PRAGMA foreign_keys = ON;');
+                }
+            } catch (PDOException $e) {
+                error_log('Database connection error: ' . $e->getMessage());
+                throw $e;
+            }
+        }
+        
+        return $db;
+    }
     public function showLoginForm() {
         // Check if user is already logged in
         if (isset($_SESSION['user_id'])) {
@@ -13,10 +48,132 @@ class AuthController extends Controller {
         }
         
         // Display login form
-        $this->view('auth/login', [
+        return $this->view('auth/login', [
             'title' => 'Login - ' . APP_NAME,
             'csrf_token' => $this->generateCsrfToken()
         ]);
+    }
+    
+    /**
+     * Show the employee login form for a specific company
+     * 
+     * @param int $company_id The ID of the company
+     */
+    public function showEmployeeLoginForm($company_id) {
+        // If already logged in, redirect to the appropriate company-scoped dashboard
+        if (isset($_SESSION['user_id'])) {
+            $role = $_SESSION['user_role'] ?? null;
+            $sessionCompanyId = $_SESSION['company_id'] ?? null;
+
+            if ($sessionCompanyId == $company_id) {
+                if ($role === 'company_admin') {
+                    header('Location: /admin/companies/' . $company_id . '/hr');
+                } else { // hr or employee
+                    header('Location: /hr/' . $company_id . '/dashboard');
+                }
+                exit;
+            }
+            // If logged into a different company, fall through to show the form so the user can switch
+        }
+        
+        // Get company info
+        $companyModel = new \App\Models\Company();
+        $company = $companyModel->getCompanyById($company_id);
+        
+        if (!$company) {
+            $_SESSION['error'] = 'Empresa no encontrada';
+            header('Location: /login');
+            exit;
+        }
+        
+        // Display employee login form
+        $this->view('auth/employee_login', [
+            'title' => 'Inicio de sesión de empleados - ' . $company['name'],
+            'company' => $company,
+            'company_id' => $company_id,
+            'csrf_token' => $this->generateCsrfToken()
+        ]);
+    }
+
+    /**
+     * Handle employee login for a specific company
+     * 
+     * @param int $company_id The ID of the company
+     */
+    public function employeeLogin($company_id) {
+        // Verify CSRF token
+        $token = $_POST['_token'] ?? '';
+        if (!$this->verifyCsrfToken($token)) {
+            $_SESSION['error'] = 'Token CSRF inválido';
+            header('Location: /hr/' . $company_id . '/login');
+            exit;
+        }
+
+        // Get form data
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+
+        // Basic validation
+        if (empty($email) || empty($password)) {
+            $_SESSION['error'] = 'Por favor completa todos los campos';
+            header('Location: /hr/' . $company_id . '/login');
+            exit;
+        }
+
+        // Get database connection
+        try {
+            $db = $this->getDbConnection();
+
+            // Prepare and execute query to find user with matching email and company
+            // Allow multiple roles (employee, hr, company_admin) to authenticate via company login
+            $stmt = $db->prepare('SELECT * FROM users WHERE email = :email AND company_id = :company_id LIMIT 1');
+            $stmt->execute([
+                ':email' => $email,
+                ':company_id' => $company_id
+            ]);
+            $user = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            // Verify user exists and password is correct
+            if ($user && password_verify($password, $user['password'])) {
+                // Only allow specific roles to use the company login portal
+                $allowedRoles = ['employee', 'hr', 'company_admin'];
+                if (!in_array($user['role'], $allowedRoles, true)) {
+                    $_SESSION['error'] = 'Esta cuenta no tiene permiso para iniciar sesión aquí.';
+                    header('Location: /hr/' . $company_id . '/login');
+                    exit;
+                }
+
+                // Set session variables
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['user_role'] = $user['role'];
+                $_SESSION['company_id'] = $company_id;
+                $_SESSION['last_activity'] = time();
+                // Store display name for greetings
+                $_SESSION['user_name'] = $user['name'] ?? (isset($user['email']) ? explode('@', $user['email'])[0] : 'Usuario');
+
+                // Redirect based on role
+                if ($user['role'] === 'hr') {
+                    header('Location: /hr/' . $company_id . '/dashboard');
+                } elseif ($user['role'] === 'company_admin') {
+                    header('Location: /admin/companies/' . $company_id . '/hr');
+                } else { // employee
+                    header('Location: /hr/' . $company_id . '/dashboard');
+                }
+                exit;
+            }
+            
+            // If we get here, login failed
+            $_SESSION['error'] = 'Correo electrónico o contraseña inválidos';
+            header('Location: /hr/' . $company_id . '/login');
+            exit;
+            
+        } catch (\PDOException $e) {
+            error_log('Database error during employee login: ' . $e->getMessage());
+            $_SESSION['error'] = 'Ocurrió un error durante el inicio de sesión. Inténtalo nuevamente.';
+            header('Location: /hr/' . $company_id . '/login');
+            exit;
+        }
     }
 
     public function login() {
@@ -77,6 +234,16 @@ class AuthController extends Controller {
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_role'] = $user['role'];
                 $_SESSION['last_activity'] = time();
+                // Store display name for greetings
+                $_SESSION['user_name'] = $user['name'] ?? (isset($user['email']) ? explode('@', $user['email'])[0] : 'Usuario');
+                
+                // Set company_id in session if available
+                if (isset($user['company_id'])) {
+                    $_SESSION['company_id'] = $user['company_id'];
+                    error_log('Set company_id in session: ' . $user['company_id']);
+                } else {
+                    error_log('No company_id found for user: ' . $user['email']);
+                }
 
                 // Redirect based on user role
                 $redirect = match($user['role']) {
@@ -103,6 +270,12 @@ class AuthController extends Controller {
     }
 
     public function logout() {
+        // Determine redirect target before clearing session
+        $redirect = '/login';
+        if (isset($_SESSION['company_id']) && $_SESSION['company_id']) {
+            $redirect = '/hr/' . $_SESSION['company_id'] . '/login';
+        }
+
         // Clear all session variables
         $_SESSION = [];
         
@@ -123,8 +296,8 @@ class AuthController extends Controller {
         // Destroy the session
         session_destroy();
         
-        // Redirect to login page
-        header('Location: /login');
+        // Redirect to appropriate login page
+        header('Location: ' . $redirect);
         exit;
     }
 
@@ -211,24 +384,9 @@ class AuthController extends Controller {
         return $_SESSION['csrf_token'];
     }
 
-    protected function verifyCsrfToken(string $token): bool {
+    protected function verifyCsrfToken($token) {
         return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
     }
 
-    protected function getDbConnection() {
-        static $pdo = null;
-        
-        if ($pdo === null) {
-            try {
-                $dsn = 'sqlite:' . DB_PATH;
-                $pdo = new \PDO($dsn);
-                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-                $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
-            } catch (\PDOException $e) {
-                die('Database connection failed: ' . $e->getMessage());
-            }
-        }
-        
-        return $pdo;
-    }
+    // getDbConnection method is already defined at the top of the class
 }

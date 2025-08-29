@@ -5,7 +5,30 @@ ini_set('display_errors', 0);
 
 // Application settings
 define('APP_DEBUG', false);
-define('APP_ENV', 'production'); // 'production' or 'development'
+// Allow APP_ENV to be overridden by environment variable for local testing
+define('APP_ENV', getenv('APP_ENV') ? strtolower(getenv('APP_ENV')) : 'production'); // 'production' or 'development'
+
+// Base URL of the application (robust HTTPS detection for proxied environments)
+$https = (
+    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+    (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') ||
+    (isset($_SERVER['REQUEST_SCHEME']) && strtolower($_SERVER['REQUEST_SCHEME']) === 'https') ||
+    (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443)
+);
+$protocol = $https ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$script_name = $_SERVER['SCRIPT_NAME']; // e.g., /public/index.php or /index.php
+$base_path = dirname($script_name);
+
+// If the app is in a subdirectory and uses a public folder, remove /public
+if (basename($base_path) === 'public') {
+    $base_path = dirname($base_path);
+}
+
+// Ensure base_path is not just '\' on Windows and remove trailing slash
+$base_path = rtrim(str_replace('\\', '/', $base_path), '/');
+
+define('APP_URL', $protocol . '://' . $host . $base_path);
 
 // Database configuration
 define('DB_PATH', ROOT_PATH . '/database/siloe.db');
